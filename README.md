@@ -20,8 +20,13 @@ $ python setup.py install
 
 ## Running the example
 
+Download the sample images from here [sample images](https://github.com/willdickson/find_fly_angle/releases/download/sample_images/sample_images.tar.gz)
 
-``` python
+Run the example passing the path to the sample image directory as an argument.
+
+``` bash 
+
+python run_example.py /path/to/sample_images
 
 ```
 

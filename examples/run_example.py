@@ -1,3 +1,4 @@
+import sys
 import os
 import os.path
 import cv2
@@ -5,9 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from find_fly_angle import find_fly_angle
 
+image_dir = sys.argv[1]
+
 threshold = 50
 mask_scale = 0.9
-image_dir = 'sample_images'
 
 # Get test images
 image_files = os.listdir(image_dir)
