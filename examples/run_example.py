@@ -7,9 +7,7 @@ from find_fly_angle import find_fly_angle
 
 threshold = 50
 mask_scale = 0.9
-
 image_dir = 'sample_images'
-max_frame = 551
 
 # Get test images
 image_files = os.listdir(image_dir)
@@ -21,9 +19,6 @@ frame_list = []
 angle_list = []
 
 for file_number, file_name in enumerate(image_files):
-
-    if file_number >= max_frame:
-        break
 
     image = cv2.imread(os.path.join(image_dir,file_name),cv2.IMREAD_GRAYSCALE)
     angle, angle_data = find_fly_angle(image, threshold, mask_scale)
@@ -46,7 +41,7 @@ for file_number, file_name in enumerate(image_files):
 cv2.destroyAllWindows()
 
 angle_list = map(np.rad2deg, angle_list)
-plt.plot(frame_list, angle_list)
+plt.plot(frame_list, angle_list,'.')
 plt.xlabel('frame (#)')
 
 plt.ylabel('angle (deg)')

@@ -3,4 +3,5 @@
 *.pyc
 *.hdf5
 sample_images
+sample_images.tar.gz
 
