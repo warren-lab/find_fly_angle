@@ -22,9 +22,16 @@ $ python setup.py install
 
 Download the sample images from here [sample images](https://github.com/willdickson/find_fly_angle/releases/download/sample_images/sample_images.tar.gz)
 
+Update the sample images to your desired location
+
+```bash
+tar xvzf sample_images.tar.gz
+
+```
+
 Run the example passing the path to the sample image directory as an argument.
 
-``` bash 
+```bash 
 
 python run_example.py /path/to/sample_images
 
