@@ -5,6 +5,11 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from find_fly_angle import find_fly_angle
+import pdb
+#import matplotlib
+
+
+
 
 image_dir = sys.argv[1]
 
@@ -19,14 +24,35 @@ image_files.sort()
 
 frame_list = []
 angle_list = []
+discrim_list=[]
+perimeter_discrim_list=[]
+perim_1_list=[]
+perim_0_list=[]
+moment_1_list=[]
+moment_0_list=[]
 
-for file_number, file_name in enumerate(image_files):
+for file_number, file_name in enumerate(image_files[0:300]):
 
     image = cv2.imread(os.path.join(image_dir,file_name),cv2.IMREAD_GRAYSCALE)
-    angle, angle_data = find_fly_angle(image, threshold, mask_scale)
+    
+    angle, angle_data, orient_dict = find_fly_angle(image, threshold, mask_scale)
 
     frame_list.append(file_number)
     angle_list.append(angle)
+    discrim_list.append(orient_dict['discrim'])
+    perimeter_discrim_list.append(orient_dict['perimeter_discrim'])
+    perim_1_list.append(orient_dict['perimeter_1'])
+    perim_0_list.append(orient_dict['perimeter_0'])
+    moment_0_list.append(orient_dict['moment_0'])
+    moment_1_list.append(orient_dict['moment_1'])
+    current_image0=orient_dict['image_0']
+    current_image1=orient_dict['image_1']
+
+
+    # create a png that shows the two halves...
+
+
+    # save moments
 
     cv2.imshow('contour image', angle_data['contour_image'])
     cv2.imshow('rotated image', angle_data['rotated_image'])
@@ -42,11 +68,15 @@ for file_number, file_name in enumerate(image_files):
 
 cv2.destroyAllWindows()
 
-angle_list = map(np.rad2deg, angle_list)
-plt.plot(frame_list, angle_list,'.')
-plt.xlabel('frame (#)')
 
-plt.ylabel('angle (deg)')
-plt.grid('on')
-plt.show()
+#angle_list = map(np.rad2deg, angle_list)
+#plt.plot(frame_list, angle_list,'.')
+#plt.xlabel('frame (#)')
+
+#plt.ylabel('angle (deg)')
+#plt.grid('on')
+#plt.show()
+plt.ion()
+plt.figure()
+plt.scatter(frame_list,discrim_list)
 
