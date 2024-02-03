@@ -44,7 +44,8 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     mid_x, mid_y = 0.5*width, 0.5*height
 
     # Threshold, find contours and get contour with the maximum area
-    rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
+    # rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
+    rval, threshold_image = cv2.threshold(image,0,256,cv2.THRESH_OTSU + cv2.THRESH_BINARY_INV)
     contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list)
 
@@ -57,7 +58,6 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     # Get bounding box and find diagonal - used for drawing body axis
     bbox = cv2.boundingRect(max_contour)
     bbox_diag = np.sqrt(bbox[2]**2 + bbox[3]**2)
-
     # Create points for drawing axis fly in contours image 
     axis_length = 0.75*bbox_diag
     body_axis_pt_0 = int(centroid_x + axis_length*body_vector[0]), int(centroid_y + axis_length*body_vector[1])
@@ -80,7 +80,8 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     cv2.line(contour_image, body_axis_pt_0, body_axis_pt_1, (0,0,255), 2)
     cv2.circle(contour_image, centroid, mask_radius, (0,0,255),2)
 
-    cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
+    # fly head indicator - does not indicate head or flip
+    # cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
 
     # Get matrices for shifting (centering) and rotating the image
     shift_mat = np.matrix([[1.0, 0.0, (mid_x - centroid_x)], [0.0, 1.0, (mid_y - centroid_y)]]) 
@@ -105,8 +106,11 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
         angle += np.deg2rad(-180.0)
 
     angle = normalize_angle_range(angle)
+
     #cv2.putText(contour_image,str(angle),org=centroid)
-    cv2.circle(contour_image, (centroid[0] + np.cos(angle)*200,centroid[1] + np.sin(angle)*200 ), 10, (0,255,255), -1)
+
+    # indicator of fly head (2/2/2024)
+    cv2.circle(contour_image, (int(centroid[0] + np.cos(angle)*mask_radius),int(centroid[1] + np.sin(angle)*mask_radius)), 10, (0,255,255), -1)
     data = {
             'flipped': not orient_ok,
             'moments': moments,
@@ -195,11 +199,18 @@ def get_angle_and_body_vector(moments):
     """
     Computre the angle and body vector given the image/blob moments
     """
+    print("Angle Test!")
     body_cov = np.array( [ [moments['mu20'], moments['mu11']], [moments['mu11'], moments['mu02'] ]])
     eig_vals, eig_vecs = np.linalg.eigh(body_cov)
     max_eig_ind = np.argmax(eig_vals**2)
     max_eig_vec = eig_vecs[:,max_eig_ind]
     angle = np.arctan2(max_eig_vec[1], max_eig_vec[0])
+
+    angle2 = np.arctan2(eig_vecs[0],eig_vals[0]-eig_vecs[1][0])
+
+    # print("Angle 1:", angle, "Angle 2:",angle2, eig_vals[0]-eig_vecs[1][0], max(eig_vecs[1]))
+    print("Angle Value:",angle)
+
     return angle, max_eig_vec
 
 

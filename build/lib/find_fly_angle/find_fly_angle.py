@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 import numpy as np
@@ -18,7 +19,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     Returns: tuple (angle, angle_data) where
 
       angle      = the estimate of the fly's angle in radians
-(https://github.com/willdickson/find_fly_angle
+
       angle_data = dictionary of useful data and images calculated during the angle estimation
 
       angle_data = { 
@@ -39,15 +40,13 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     # Get basic image data
     height, width = image.shape
-    print(image.shape)
     image_cvsize = width, height 
     mid_x, mid_y = 0.5*width, 0.5*height
 
     # Threshold, find contours and get contour with the maximum area
     rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
-    contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    dummy, contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list)
-
 
     # Get moments and then compute centroid and rotation angle
     moments = cv2.moments(max_contour)
@@ -65,22 +64,18 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     # Compute cirlce mask
     mask_radius = int(mask_scale*height/2.0)
-    print(mask_radius)
     vals_x = np.arange(0.0,width)
     vals_y = np.arange(0.0,height)
     grid_x, grid_y = np.meshgrid(vals_x, vals_y)
-    
     circ_mask = (grid_x - width/2.0 + 0.5)**2 + (grid_y - height/2.0 + 0.5)**2 < (mask_radius)**2
 
     # Draw image with body contours, centroid circle and body axis
     centroid = int(centroid_x), int(centroid_y)
     contour_image = cv2.cvtColor(image,cv2.COLOR_GRAY2BGR)
     cv2.drawContours(contour_image,[max_contour],-1,(0,0,255),2)
-    cv2.circle(contour_image, centroid, 10, (0,0,255), -1)
+    cv2.circle(contour_image, centroid, 5, (0,0,255), 2)
     cv2.line(contour_image, body_axis_pt_0, body_axis_pt_1, (0,0,255), 2)
-    cv2.circle(contour_image, centroid, mask_radius, (0,0,255),2)
-
-    cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
+    cv2.circle(contour_image, centroid, mask_radius, (0,0,255),2) 
 
     # Get matrices for shifting (centering) and rotating the image
     shift_mat = np.matrix([[1.0, 0.0, (mid_x - centroid_x)], [0.0, 1.0, (mid_y - centroid_y)]]) 
@@ -105,8 +100,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
         angle += np.deg2rad(-180.0)
 
     angle = normalize_angle_range(angle)
-    #cv2.putText(contour_image,str(angle),org=centroid)
-    cv2.circle(contour_image, (centroid[0] + np.cos(angle)*200,centroid[1] + np.sin(angle)*200 ), 10, (0,255,255), -1)
+
     data = {
             'flipped': not orient_ok,
             'moments': moments,
