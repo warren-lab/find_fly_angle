@@ -42,7 +42,7 @@ for file_number, file_name in enumerate(image_files):
 
     print(('{0}/{1}: {2}, angle: {3:1.2f}'.format(file_number, len(image_files), file_name,np.rad2deg(angle))))
 
-    # time.sleep(10)
+    time.sleep(10)
 
     cv2.waitKey(50)
 
