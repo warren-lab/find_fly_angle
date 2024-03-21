@@ -4,7 +4,7 @@ import os.path
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from find_fly_angle import find_fly_angle
+from find_fly_angle.find_fly_angle import find_fly_angle
 import time
 
 image_dir = sys.argv[1]
@@ -39,7 +39,7 @@ for file_number, file_name in enumerate(image_files):
 
     print(('{0}/{1}: {2}, angle: {3:1.2f}'.format(file_number, len(image_files), file_name,np.rad2deg(angle))))
 
-    time.sleep(10)
+    time.sleep(1)
 
     cv2.waitKey(50)
 

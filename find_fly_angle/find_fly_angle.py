@@ -48,7 +48,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     # Threshold, find contours and get contour with the maximum area
     rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
     
-    dummy, contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list)
 
 
@@ -76,13 +76,12 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     circ_mask = (grid_x - width/2.0 + 0.5)**2 + (grid_y - height/2.0 + 0.5)**2 < (mask_radius)**2
 
     # Draw image with body contours, centroid circle and body axis
-    centroid = int(centroid_x), int(centroid_y)
+    centroid = (int(centroid_x), int(centroid_y))
     contour_image = cv2.cvtColor(image,cv2.COLOR_GRAY2BGR)
     cv2.drawContours(contour_image,[max_contour],-1,(0,0,255),2)
     cv2.circle(contour_image, centroid, 10, (0,0,255), -1)
     cv2.line(contour_image, body_axis_pt_0, body_axis_pt_1, (0,0,255), 2)
     cv2.circle(contour_image, centroid, mask_radius, (0,0,255),2)
-
     cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
 
     # Get matrices for shifting (centering) and rotating the image
@@ -110,7 +109,8 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     angle = normalize_angle_range(angle)
     #cv2.putText(contour_image,str(angle),org=centroid)
-    cv2.circle(contour_image, (centroid[0] + np.cos(angle)*200,centroid[1] + np.sin(angle)*200 ), 10, (0,255,255), -1)
+    cv2.circle(contour_image, (int(centroid[0] + np.cos(angle)*200),int(centroid[1] + np.sin(angle)*200 )), 10, (0,255,255), -1)
+    # cv2.circle(contour_image, (int(centroid[0] + np.cos(angle)*mask_radius),int(centroid[1] + np.sin(angle)*mask_radius)), 10, (0,255,255), -1)
     data = {
             'flipped': not orient_ok,
             'moments': moments,
@@ -125,7 +125,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
             'rotated_threshold_image': rotated_threshold_image,
             }
 
-    return angle, data, orient_dict
+    return angle, data
         
 
 def is_orientation_ok(image,k=2,is_first=True): 
@@ -166,7 +166,7 @@ def is_orientation_ok(image,k=2,is_first=True):
     max_contour, max_area = get_max_area_contour(contour_list0)
     perimeter_0 = cv2.arcLength(max_contour,True)
 
-    dummy, contour_list1, dummy = cv2.findContours(image_1copy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contour_list1, dummy = cv2.findContours(image_1copy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list1)
     perimeter_1 = cv2.arcLength(max_contour,True)
 
