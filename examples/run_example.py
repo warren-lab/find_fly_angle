@@ -11,8 +11,8 @@ import time
 
 image_dir = sys.argv[1]
 
-threshold = 50
-mask_scale = 0.7
+threshold = 25
+mask_scale = 0.9
 
 # Get test images
 image_files = os.listdir(image_dir)
@@ -23,7 +23,7 @@ image_files.sort()
 frame_list = []
 angle_list = []
 
-for file_number, file_name in enumerate(image_files):
+for file_number, file_name in enumerate(image_files[1670:]):
 
     image = cv2.imread(os.path.join(image_dir,file_name),cv2.IMREAD_GRAYSCALE)
     print(np.shape(image))
@@ -31,7 +31,8 @@ for file_number, file_name in enumerate(image_files):
 
     frame_list.append(file_number)
     angle_list.append(angle)
-
+    # show the filename
+    cv2.putText(angle_data['contour_image'],file_name,(20,20),1,1,(255,255,255),1)
     cv2.imshow('contour image', angle_data['contour_image'])
     cv2.imshow('rotated image', angle_data['rotated_image'])
 
@@ -42,7 +43,7 @@ for file_number, file_name in enumerate(image_files):
 
     print(('{0}/{1}: {2}, angle: {3:1.2f}'.format(file_number, len(image_files), file_name,np.rad2deg(angle))))
 
-    time.sleep(10)
+    time.sleep(1)
 
     cv2.waitKey(50)
 

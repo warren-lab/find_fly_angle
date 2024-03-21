@@ -80,7 +80,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     cv2.line(contour_image, body_axis_pt_0, body_axis_pt_1, (0,0,255), 2)
     cv2.circle(contour_image, centroid, mask_radius, (0,0,255),2)
 
-    cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
+    # cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
 
     # Get matrices for shifting (centering) and rotating the image
     shift_mat = np.matrix([[1.0, 0.0, (mid_x - centroid_x)], [0.0, 1.0, (mid_y - centroid_y)]]) 
@@ -106,7 +106,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     angle = normalize_angle_range(angle)
     #cv2.putText(contour_image,str(angle),org=centroid)
-    cv2.circle(contour_image, (centroid[0] + np.cos(angle)*200,centroid[1] + np.sin(angle)*200 ), 10, (0,255,255), -1)
+    cv2.circle(contour_image, (int(centroid[0] + np.cos(angle)*mask_radius),int(centroid[1] + np.sin(angle)*mask_radius)), 10, (0,255,255), -1)
     data = {
             'flipped': not orient_ok,
             'moments': moments,
