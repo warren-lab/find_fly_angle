@@ -39,7 +39,6 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     # Get basic image data
     height, width = image.shape
-    print('height',height)
     print(image.shape)
     image_cvsize = width, height 
     mid_x, mid_y = 0.5*width, 0.5*height
@@ -66,7 +65,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     # Compute cirlce mask
     mask_radius = int(mask_scale*height/2.0)
-    print('mask_radius',mask_radius)
+    print(mask_radius)
     vals_x = np.arange(0.0,width)
     vals_y = np.arange(0.0,height)
     grid_x, grid_y = np.meshgrid(vals_x, vals_y)
