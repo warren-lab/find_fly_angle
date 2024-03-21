@@ -2,6 +2,7 @@
 
 import numpy as np
 import cv2
+import pdb
 
 
 def find_fly_angle(image, threshold=60, mask_scale=0.95): 
@@ -38,6 +39,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     """
 
     # Get basic image data
+    
     height, width = image.shape
     print(image.shape)
     image_cvsize = width, height 
@@ -45,7 +47,12 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     # Threshold, find contours and get contour with the maximum area
     rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
+<<<<<<< HEAD
     contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+=======
+    
+    dummy, contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+>>>>>>> d7adfc9ca7dca752b90ee39b52ff0cf6535c466e
     max_contour, max_area = get_max_area_contour(contour_list)
 
 
@@ -95,9 +102,10 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     rotated_threshold_image = cv2.warpAffine(shifted_threshold_image,rot_mat,image_cvsize)
     rotated_threshold_image = rotated_threshold_image*circ_mask
     rval, rotated_threshold_image = cv2.threshold(rotated_threshold_image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY)
-
+    rotated_threshold_image_pre=rotated_threshold_image
     # Get orientation discriminant and flip image if needed 
-    orient_ok, orient_discrim = is_orientation_ok(rotated_threshold_image,2)
+    orient_ok, orient_discrim, orient_dict = is_orientation_ok(rotated_threshold_image,2)
+    
     if not orient_ok:
         rot_180_mat = cv2.getRotationMatrix2D((mid_x, mid_y),-180.0,1.0)
         rotated_image = cv2.warpAffine(rotated_image,rot_180_mat,image_cvsize)
@@ -121,7 +129,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
             'rotated_threshold_image': rotated_threshold_image,
             }
 
-    return angle, data 
+    return angle, data, orient_dict
         
 
 def is_orientation_ok(image,k=2,is_first=True): 
@@ -134,7 +142,7 @@ def is_orientation_ok(image,k=2,is_first=True):
     orientation and < 1 for the other. 
 
     """
-
+    orientation_dict={}
     mid_x, mid_y = int(0.5*image.shape[1]), int(0.5*image.shape[0])
 
     # Get moment for first body half 
@@ -146,21 +154,43 @@ def is_orientation_ok(image,k=2,is_first=True):
     # Get moment for second body half
     image_1 = np.array(image)
     image_1[:,int(mid_x):] = 0
+    image_1copy=np.copy(image_1)
     image_1 = np.fliplr(image_1)
     image_1 = image_1[:,int(mid_x):]
     moment_1 = get_moment(image_1,k)
-
     # Compute descriminant and flip flag
     discrim = (moment_0 - moment_1)/(moment_0 + moment_1)
     if discrim < 0:
         ok = False
     else:
         ok = True 
-    return ok, discrim 
+    
 
+    dummy, contour_list0, dummy = cv2.findContours(image_0, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    max_contour, max_area = get_max_area_contour(contour_list0)
+    perimeter_0 = cv2.arcLength(max_contour,True)
 
+    dummy, contour_list1, dummy = cv2.findContours(image_1copy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    max_contour, max_area = get_max_area_contour(contour_list1)
+    perimeter_1 = cv2.arcLength(max_contour,True)
+
+    perimeter_discrim=(perimeter_0-perimeter_1)/(perimeter_0+perimeter_1)
+    orientation_dict['image_0']=image_0
+    orientation_dict['image_1']=image_1
+    orientation_dict['moment_0']=moment_0
+    orientation_dict['moment_1']=moment_1
+    orientation_dict['perimeter_0']=perimeter_0
+    orientation_dict['perimeter_1']=perimeter_1
+    orientation_dict['discrim']=discrim
+    orientation_dict['perimeter_discrim']=perimeter_discrim
+    return ok, discrim, orientation_dict
+
+def calculate_moments(image):
+    # return six images and 12 moments (first, second)
+    pass
 
 def get_moment(image,k=2):
+    
     data = image.sum(axis=0)
     weighted_data = data*np.arange(data.shape[0])**k
     return  weighted_data.sum()
