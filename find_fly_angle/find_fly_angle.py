@@ -47,12 +47,8 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     # Threshold, find contours and get contour with the maximum area
     rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
-<<<<<<< HEAD
-    contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-=======
     
     dummy, contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
->>>>>>> d7adfc9ca7dca752b90ee39b52ff0cf6535c466e
     max_contour, max_area = get_max_area_contour(contour_list)
 
 
@@ -166,7 +162,7 @@ def is_orientation_ok(image,k=2,is_first=True):
         ok = True 
     
 
-    dummy, contour_list0, dummy = cv2.findContours(image_0, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contour_list0, dummy = cv2.findContours(image_0, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list0)
     perimeter_0 = cv2.arcLength(max_contour,True)
 
