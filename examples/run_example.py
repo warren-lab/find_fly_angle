@@ -5,15 +5,12 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from find_fly_angle import find_fly_angle
+import time
 
 image_dir = sys.argv[1]
 
 threshold = 50
-<<<<<<< HEAD
-mask_scale = 0.9
-=======
 mask_scale = 0.7
->>>>>>> parent of 08f7fe9... changes to warren version FlyAngle
 
 # Get test images
 image_files = os.listdir(image_dir)
@@ -40,13 +37,9 @@ for file_number, file_name in enumerate(image_files):
     #cv2.imshow('shifted_threshold image', angle_data['shifted_threshold_image'])
     #cv2.imshow('rotated_threshold image', angle_data['rotated_threshold_image'])
 
-<<<<<<< HEAD
-    print('{0}/{1}: {2}, angle: {3:1.2f}'.format(file_number, len(image_files), file_name,np.rad2deg(angle)))
-=======
     print(('{0}/{1}: {2}, angle: {3:1.2f}'.format(file_number, len(image_files), file_name,np.rad2deg(angle))))
 
     time.sleep(10)
->>>>>>> parent of 08f7fe9... changes to warren version FlyAngle
 
     cv2.waitKey(50)
 
