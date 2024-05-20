@@ -45,7 +45,8 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
 
     # Threshold, find contours and get contour with the maximum area
     # rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
-    rval, threshold_image = cv2.threshold(image,0,256,cv2.THRESH_OTSU + cv2.THRESH_BINARY_INV)
+    # rval, threshold_image = cv2.threshold(image,0,256,cv2.THRESH_OTSU + cv2.THRESH_BINARY_INV)
+    rval, threshold_image = cv2.threshold(image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY_INV)
     contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list)
 
