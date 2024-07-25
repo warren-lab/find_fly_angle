@@ -206,8 +206,8 @@ def get_angle_and_body_vector(moments):
     max_eig_vec = eig_vecs[:,max_eig_ind]
     angle = np.arctan2(max_eig_vec[1], max_eig_vec[0])
     # print("Angle 1:", angle, "Angle 2:",angle2, eig_vals[0]-eig_vecs[1][0], max(eig_vecs[1]))
-    print("Angle:",np.rad2deg(angle))
-    print("Est Rotated Angle:", deg360to180(np.rad2deg(angle)+180),normalize_angle_range(np.rad2deg(angle)+180))
+    print("Angle:",np.rad2deg(angle),np.rad2deg(normalize_angle_range(angle)))
+    print("Est Rotated Angle:", deg360to180(np.rad2deg(angle)+180),normalize_angle_range(normalize_angle_range(angle+np.pi)))
     return angle, max_eig_vec
 
 
