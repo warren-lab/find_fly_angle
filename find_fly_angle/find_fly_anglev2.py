@@ -200,18 +200,14 @@ def get_angle_and_body_vector(moments):
     """
     Computre the angle and body vector given the image/blob moments
     """
-    print("Angle Test!")
     body_cov = np.array( [ [moments['mu20'], moments['mu11']], [moments['mu11'], moments['mu02'] ]])
     eig_vals, eig_vecs = np.linalg.eigh(body_cov)
     max_eig_ind = np.argmax(eig_vals**2)
     max_eig_vec = eig_vecs[:,max_eig_ind]
     angle = np.arctan2(max_eig_vec[1], max_eig_vec[0])
-
-    angle2 = np.arctan2(eig_vecs[0],eig_vals[0]-eig_vecs[1][0])
-
     # print("Angle 1:", angle, "Angle 2:",angle2, eig_vals[0]-eig_vecs[1][0], max(eig_vecs[1]))
-    print("Angle Value:",np.rad2deg(angle))
-    print("My Angle Value:", 180+np.rad2deg(np.arctan2(2*moments['mu11'],moments['mu20']-moments['mu02'])))
+    print("Angle:",np.rad2deg(angle))
+    print("Est Rotated Angle:", normalize_angle_range(np.rad2deg(angle)-180))
     return angle, max_eig_vec
 
 
