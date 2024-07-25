@@ -51,7 +51,6 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     contour_list, dummy = cv2.findContours(threshold_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list)
 
-
     # Get moments and then compute centroid and rotation angle
     moments = cv2.moments(max_contour)
     centroid_x, centroid_y = get_centroid(moments)
@@ -60,6 +59,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     # Get bounding box and find diagonal - used for drawing body axis
     bbox = cv2.boundingRect(max_contour)
     bbox_diag = np.sqrt(bbox[2]**2 + bbox[3]**2)
+    
 
     # Create points for drawing axis fly in contours image 
     axis_length = 0.75*bbox_diag
@@ -78,13 +78,16 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     # Draw image with body contours, centroid circle and body axis
     centroid = (int(centroid_x), int(centroid_y))
     contour_image = cv2.cvtColor(image,cv2.COLOR_GRAY2BGR)
+
+    cv2.rectangle(contour_image,(bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(255,0,255),2)
+
     cv2.drawContours(contour_image,[max_contour],-1,(0,0,255),2)
     cv2.circle(contour_image, centroid, 10, (0,0,255), -1)
     cv2.line(contour_image, body_axis_pt_0, body_axis_pt_1, (0,0,255), 2)
     cv2.circle(contour_image, centroid, mask_radius, (0,0,255),2)
-    cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
+    # cv2.circle(contour_image, body_axis_pt_0, 10, (0,255,255), -1) # to see fly's angle easily 05/18/2023
 
-    # Get matrices for shifting (centering) and rotating the image
+    # Get matrices for shift    line1 = ing (centering) and rotating the image
     shift_mat = np.matrix([[1.0, 0.0, (mid_x - centroid_x)], [0.0, 1.0, (mid_y - centroid_y)]]) 
     rot_mat = cv2.getRotationMatrix2D((mid_x, mid_y),np.rad2deg(angle),1.0)
 
@@ -99,8 +102,8 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     rval, rotated_threshold_image = cv2.threshold(rotated_threshold_image, threshold, np.iinfo(image.dtype).max, cv2.THRESH_BINARY)
     rotated_threshold_image_pre=rotated_threshold_image
     # Get orientation discriminant and flip image if needed 
-    orient_ok, orient_discrim, orient_dict = is_orientation_ok(rotated_threshold_image,2)
-    
+    orient_ok, orient_discrcentroidim, orient_dict = is_orientation_ok(rotated_threshold_image,2)
+
     if not orient_ok:
         rot_180_mat = cv2.getRotationMatrix2D((mid_x, mid_y),-180.0,1.0)
         rotated_image = cv2.warpAffine(rotated_image,rot_180_mat,image_cvsize)
@@ -110,6 +113,7 @@ def find_fly_angle(image, threshold=60, mask_scale=0.95):
     angle = normalize_angle_range(angle)
     #cv2.putText(contour_image,str(angle),org=centroid)
     cv2.circle(contour_image, (int(centroid[0] + np.cos(angle)*200),int(centroid[1] + np.sin(angle)*200 )), 10, (0,255,255), -1)
+    # cv2.circle(contour_image, (int(centroid[0] + np.cos(angle2)*200),int(centroid[1] + np.sin(angle2)*200 )), 10, (255,0,255), -1)
     # cv2.circle(contour_image, (int(centroid[0] + np.cos(angle)*mask_radius),int(centroid[1] + np.sin(angle)*mask_radius)), 10, (0,255,255), -1)
     data = {
             'flipped': not orient_ok,
@@ -136,7 +140,7 @@ def is_orientation_ok(image,k=2,is_first=True):
     discriminant which is is the ratio of the k-th moments of area for each
     half of the body.  The discriminant should be such that it is > 1 for one
     orientation and < 1 for the other. 
-
+quart1_x
     """
     orientation_dict={}
     mid_x, mid_y = int(0.5*image.shape[1]), int(0.5*image.shape[0])
@@ -154,13 +158,53 @@ def is_orientation_ok(image,k=2,is_first=True):
     image_1 = np.fliplr(image_1)
     image_1 = image_1[:,int(mid_x):]
     moment_1 = get_moment(image_1,k)
+
+
+    # NEW METHOD:
+    ## DIVIDE FLY INTO TWO PARTS image 1 and image 2...
+    ### Calculate the moments for the sub division of these two sections
+    # image_00 = np.array(image_0)
+    # image_00[:,:int(mid_x)] = 0
+    # image_00 = image_0[:,int(mid_x):]
+    # moment_0 = get_moment(image_00,k)
+
+    # # Get moment for second body half
+    # image_11 = np.array(image_1)
+    # image_11[:,int(mid_x):] = 0
+    # image_11copy=np.copy(image_11)
+    # image_11 = np.fliplr(image_11)
+    # image_11 = image_11[:,int(mid_x):]
+    # moment_1 = get_moment(image_11,k)
+
+    # ## FOR EACH PART OF FLY FIND THE CENTROI
+
+    # quart1_x, quart1_y = int(.25*image.shape[1]), int(0.5*image.shape[0])
+    # quart3_x, quart3_y = int(0.75*image.shape[1]), int(0.5*image.shape[0])
+
+    # # Get moment for first body half 
+    # image_0 = np.array(image)
+    # image_0[:,:int(quart1_x)] = 0
+    # image_0 = image_0[:,int(quart1_x):]
+    # moment_0 = get_moment(image_0,k)
+
+    # # Get moment for second body half
+    # image_1 = np.array(image)
+    # image_1[:,int(quart3_x):] = 0
+    # image_1copy=np.copy(image_1)
+    # image_1 = np.fliplr(image_1)
+    # image_1 = image_1[:,int(quart3_x):]
+    # moment_1 = get_moment(image_1,k)
+
+
+
     # Compute descriminant and flip flag
     discrim = (moment_0 - moment_1)/(moment_0 + moment_1)
     if discrim < 0:
         ok = False
+        print("FALSE", moment_0,moment_1,discrim)
     else:
         ok = True 
-    
+        print("TRUE", moment_0,moment_1,discrim)
 
     contour_list0, dummy = cv2.findContours(image_0, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     max_contour, max_area = get_max_area_contour(contour_list0)
@@ -223,9 +267,13 @@ def get_angle_and_body_vector(moments):
     """
     body_cov = np.array( [ [moments['mu20'], moments['mu11']], [moments['mu11'], moments['mu02'] ]])
     eig_vals, eig_vecs = np.linalg.eigh(body_cov)
+    print("eig vectors",eig_vecs)
     max_eig_ind = np.argmax(eig_vals**2)
     max_eig_vec = eig_vecs[:,max_eig_ind]
     angle = np.arctan2(max_eig_vec[1], max_eig_vec[0])
+    # print("ANGLE ORIG:",np.rad2deg(angle))
+    # print("ANGLE CHECK:", np.rad2deg(.5*np.arctan2((2*eig_vecs[0][1]),(eig_vecs[0][0] - eig_vecs[1][1]))),np.rad2deg(.5*np.arctan2((2*eig_vecs[0][1]),(eig_vecs[0][0] - eig_vecs[1][1])))+180)
+    # angle2 = (.5*np.arctan2((2*eig_vecs[0][1]),(eig_vecs[0][0] - eig_vecs[1][1])))
     return angle, max_eig_vec
 
 
