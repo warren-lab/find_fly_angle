@@ -207,7 +207,7 @@ def get_angle_and_body_vector(moments):
     angle = np.arctan2(max_eig_vec[1], max_eig_vec[0])
     # print("Angle 1:", angle, "Angle 2:",angle2, eig_vals[0]-eig_vecs[1][0], max(eig_vecs[1]))
     print("Angle:",np.rad2deg(angle))
-    print("Est Rotated Angle:", normalize_angle_range(np.rad2deg(angle)-180))
+    print("Est Rotated Angle:", deg360to180(np.rad2deg(angle)-180))
     return angle, max_eig_vec
 
 
@@ -220,6 +220,19 @@ def normalize_angle_range(angle):
     angle_adj = angle_adj % np.deg2rad(360.)
     angle_adj -= np.deg2rad(180.0)
     return angle_adj
+def deg360to180(angle):
+    # if angle <0:
+    #     angle %=360
+    # elif angle > 180:
+    #     angle = 360 - angle
+    if angle in range(-180,181):
+        return angle
+    else:
+        angle%=360
+        if angle>180:
+            angle-=360
+        return angle
+
 
 
 
